@@ -7,6 +7,8 @@ body {
     overflow: hidden;
     background-color: #000;
     color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* 草书 - Ma Shan Zheng */
@@ -32,4 +34,69 @@ body {
 /* 备用衬线字体 */
 .font-serif-sc {
     font-family: "Long Cang", "Ma Shan Zheng", cursive;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    /* 禁用文本选择 */
+    * {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* 优化触摸反馈 */
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 防止字体过大导致的布局问题 */
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 600px) {
+    /* 横屏时减小元素尺寸 */
+    .font-brush,
+    .font-cao,
+    .font-xing,
+    .font-kai {
+        line-height: 1.1;
+    }
+}
+
+/* 平板适配 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* 平板特定样式 */
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大可触摸区域 */
+    button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* 防止页面滚动 */
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+
+/* 安全区域适配（刘海屏） */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
 }

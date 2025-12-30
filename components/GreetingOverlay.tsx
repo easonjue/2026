@@ -75,18 +75,20 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
   return (
     <div className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none px-4 text-center">
       {/* Top Left Label */}
-      <div className="absolute top-8 left-8 text-left opacity-80 scale-75 md:scale-100">
-        <p className="font-serif-sc text-sm tracking-widest text-red-100 mb-1 uppercase">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 text-left opacity-80 scale-50 sm:scale-75 md:scale-100">
+        <p className="font-serif-sc text-xs sm:text-sm tracking-wider sm:tracking-widest text-red-100 mb-0.5 sm:mb-1 uppercase">
           Happy New Year
         </p>
-        <p className="font-serif-sc text-xs text-white/60">
+        <p className="font-serif-sc text-[10px] sm:text-xs text-white/60">
           岁月悠长 · 山河无恙
         </p>
       </div>
 
       {/* Top Right Label */}
-      <div className="absolute top-8 right-8 text-right opacity-80 scale-75 md:scale-100">
-        <p className="font-brush text-xl text-yellow-200">二〇二六 · 丙午年</p>
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 text-right opacity-80 scale-50 sm:scale-75 md:scale-100">
+        <p className="font-brush text-base sm:text-xl text-yellow-200">
+          二〇二六 · 丙午年
+        </p>
       </div>
 
       {/* Center Animated Greeting */}
@@ -102,7 +104,7 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
         >
           {/* 主文字 */}
           <motion.h1
-            className={`text-5xl md:text-7xl lg:text-8xl ${fontClass} mb-8`}
+            className={`text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl ${fontClass} mb-4 sm:mb-6 md:mb-8 px-4`}
             style={{
               color: current.color,
               textShadow: `0 0 40px ${current.glowColor}, 0 0 80px ${current.glowColor}`,
@@ -121,7 +123,7 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
 
           {/* 分隔线 */}
           <motion.div
-            className="h-[2px] w-24 mb-6"
+            className="h-[1px] sm:h-[2px] w-16 sm:w-24 mb-3 sm:mb-4 md:mb-6"
             style={{
               background: `linear-gradient(90deg, transparent, ${current.color}, transparent)`,
             }}
@@ -132,42 +134,42 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
 
           {/* 出处和角色 */}
           <motion.p
-            className="text-xl md:text-2xl font-serif-sc text-white/80 tracking-[0.15em]"
+            className="text-sm sm:text-base md:text-xl lg:text-2xl font-serif-sc text-white/80 tracking-[0.1em] sm:tracking-[0.15em] px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
           >
             {current.subText}
-            <span className="opacity-40 mx-3">|</span>
+            <span className="opacity-40 mx-2 sm:mx-3">|</span>
             <span style={{ color: current.color }}>{current.artist}</span>
           </motion.p>
         </motion.div>
       </AnimatePresence>
 
       {/* Bottom UI Decoration */}
-      <div className="absolute bottom-12 left-8 text-left max-w-xs scale-75 md:scale-100">
-        <div className="mb-4">
-          <h2 className="text-3xl md:text-4xl font-brush text-red-600 mb-1 drop-shadow-md">
+      <div className="hidden sm:block absolute bottom-20 sm:bottom-12 left-4 sm:left-8 text-left max-w-[200px] sm:max-w-xs scale-50 sm:scale-75 md:scale-100">
+        <div className="mb-2 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-brush text-red-600 mb-0.5 sm:mb-1 drop-shadow-md">
             新年大吉
           </h2>
-          <p className="text-[10px] md:text-xs text-white/40 leading-tight uppercase tracking-widest">
+          <p className="text-[9px] sm:text-[10px] md:text-xs text-white/40 leading-tight uppercase tracking-wide sm:tracking-widest">
             Celestial Harmony
             <br />
             Lunar Cycle 2026
           </p>
         </div>
-        <p className="text-[9px] md:text-[11px] text-white/30 uppercase tracking-tighter leading-relaxed font-sans border-l border-red-900/50 pl-3">
+        <p className="text-[8px] sm:text-[9px] md:text-[11px] text-white/30 uppercase tracking-tighter leading-relaxed font-sans border-l border-red-900/50 pl-2 sm:pl-3">
           May the fireworks illuminate your path and the cheers of the new year
           bring endless joy to your heart.
         </p>
       </div>
 
-      <div className="absolute bottom-12 right-8 flex flex-col items-end scale-75 md:scale-100">
-        <div className="w-16 h-1 mb-4 bg-gradient-to-l from-red-600 to-transparent" />
-        <p className="text-sm text-white/60 font-serif-sc tracking-widest">
+      <div className="hidden sm:flex absolute bottom-20 sm:bottom-12 right-4 sm:right-8 flex-col items-end scale-50 sm:scale-75 md:scale-100">
+        <div className="w-12 sm:w-16 h-0.5 sm:h-1 mb-2 sm:mb-4 bg-gradient-to-l from-red-600 to-transparent" />
+        <p className="text-xs sm:text-sm text-white/60 font-serif-sc tracking-wider sm:tracking-widest">
           不 负 韶 华
         </p>
-        <p className="text-[10px] text-white/20 mt-1 uppercase font-sans">
+        <p className="text-[9px] sm:text-[10px] text-white/20 mt-0.5 sm:mt-1 uppercase font-sans">
           Dreams ignite the future
         </p>
       </div>

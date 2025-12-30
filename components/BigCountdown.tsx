@@ -44,7 +44,7 @@ const DigitCard: React.FC<{ digit: string; label: string }> = ({
 
         {/* 卡片主体 */}
         <motion.div
-          className="relative w-16 h-20 md:w-24 md:h-32 lg:w-32 lg:h-40 bg-gradient-to-b from-gray-900 to-black rounded-xl border border-red-500/30 flex items-center justify-center overflow-hidden shadow-2xl"
+          className="relative w-12 h-16 sm:w-16 sm:h-20 md:w-24 md:h-32 lg:w-32 lg:h-40 bg-gradient-to-b from-gray-900 to-black rounded-lg md:rounded-xl border border-red-500/30 flex items-center justify-center overflow-hidden shadow-2xl"
           style={{
             boxShadow:
               "0 0 40px rgba(220, 38, 38, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
@@ -69,7 +69,7 @@ const DigitCard: React.FC<{ digit: string; label: string }> = ({
                 damping: 20,
                 duration: 0.5,
               }}
-              className="font-mono text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200 drop-shadow-lg"
+              className="font-mono text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200 drop-shadow-lg"
               style={{
                 textShadow: "0 0 30px rgba(255, 100, 100, 0.5)",
               }}
@@ -81,7 +81,7 @@ const DigitCard: React.FC<{ digit: string; label: string }> = ({
       </div>
 
       {/* 标签 */}
-      <span className="mt-2 md:mt-4 text-xs md:text-sm text-red-200/60 uppercase tracking-[0.2em] font-serif-sc">
+      <span className="mt-1 sm:mt-2 md:mt-4 text-[10px] sm:text-xs md:text-sm text-red-200/60 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-serif-sc">
         {label}
       </span>
     </div>
@@ -97,12 +97,12 @@ const TimeUnit: React.FC<{ value: number; label: string }> = ({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex gap-1 md:gap-2">
+      <div className="flex gap-0.5 sm:gap-1 md:gap-2">
         {digits.map((digit, index) => (
           <DigitCard key={`${label}-${index}`} digit={digit} label="" />
         ))}
       </div>
-      <span className="mt-2 md:mt-4 text-xs md:text-sm text-red-200/60 uppercase tracking-[0.2em] font-serif-sc">
+      <span className="mt-1 sm:mt-2 md:mt-4 text-[10px] sm:text-xs md:text-sm text-red-200/60 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-serif-sc">
         {label}
       </span>
     </div>
@@ -111,7 +111,7 @@ const TimeUnit: React.FC<{ value: number; label: string }> = ({
 
 // 分隔符组件
 const Separator: React.FC = () => (
-  <div className="flex flex-col items-center justify-center gap-3 md:gap-4 px-1 md:px-3 pb-6 md:pb-8">
+  <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-4 px-0.5 sm:px-1 md:px-3 pb-4 sm:pb-6 md:pb-8">
     <motion.div
       animate={{
         opacity: [1, 0.3, 1],
@@ -122,7 +122,7 @@ const Separator: React.FC = () => (
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
+      className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
       style={{ boxShadow: "0 0 15px rgba(220, 38, 38, 0.8)" }}
     />
     <motion.div
@@ -136,7 +136,7 @@ const Separator: React.FC = () => (
         ease: "easeInOut",
         delay: 0.5,
       }}
-      className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
+      className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
       style={{ boxShadow: "0 0 15px rgba(220, 38, 38, 0.8)" }}
     />
   </div>
@@ -238,15 +238,15 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.8 }}
-        className="relative mb-8 md:mb-12 text-center"
+        className="relative mb-6 sm:mb-8 md:mb-12 text-center px-4"
       >
-        <h1 className="font-brush text-4xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-red-400 to-yellow-200 drop-shadow-lg">
+        <h1 className="font-brush text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-red-400 to-yellow-200 drop-shadow-lg">
           <span onClick={onSkip} className="cursor-default">
             新
           </span>
           年倒计时
         </h1>
-        <p className="mt-2 text-sm md:text-base text-red-200/50 tracking-[0.5em] uppercase">
+        <p className="mt-2 text-xs sm:text-sm md:text-base text-red-200/50 tracking-[0.3em] sm:tracking-[0.5em] uppercase">
           Countdown to 2026
         </p>
       </motion.div>
@@ -256,7 +256,7 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.8 }}
-        className="relative flex items-center gap-2 md:gap-4 lg:gap-6 px-4"
+        className="relative flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 px-2 sm:px-4"
       >
         <TimeUnit value={timeLeft.days} label="天" />
         <Separator />
@@ -272,25 +272,25 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-8 md:bottom-12 text-center"
+        className="absolute bottom-6 sm:bottom-8 md:bottom-12 text-center px-4"
       >
-        <p className="text-xs md:text-sm text-white/30 tracking-[0.3em] font-serif-sc">
+        <p className="text-[10px] sm:text-xs md:text-sm text-white/30 tracking-[0.2em] sm:tracking-[0.3em] font-serif-sc">
           马年将至 · 万象更新
         </p>
         <motion.div
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="mt-4 text-[10px] text-red-500/40 uppercase tracking-widest"
+          className="mt-2 sm:mt-4 text-[9px] sm:text-[10px] text-red-500/40 uppercase tracking-wider sm:tracking-widest"
         >
           The Year of the Horse
         </motion.div>
       </motion.div>
 
       {/* 四角装饰 */}
-      <div className="absolute top-4 left-4 w-16 h-16 border-l-2 border-t-2 border-red-500/30" />
-      <div className="absolute top-4 right-4 w-16 h-16 border-r-2 border-t-2 border-red-500/30" />
-      <div className="absolute bottom-4 left-4 w-16 h-16 border-l-2 border-b-2 border-red-500/30" />
-      <div className="absolute bottom-4 right-4 w-16 h-16 border-r-2 border-b-2 border-red-500/30" />
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l-2 border-t-2 border-red-500/30" />
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r-2 border-t-2 border-red-500/30" />
+      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l-2 border-b-2 border-red-500/30" />
+      <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r-2 border-b-2 border-red-500/30" />
     </motion.div>
   );
 };

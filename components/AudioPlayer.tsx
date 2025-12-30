@@ -62,6 +62,7 @@ const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
 
       // 预加载多个烟花音效（使用不同频率模拟不同的烟花声音）
       const fireworkUrls = [
+        "assets/sounds/firework-display-16679.mp3",
         // 你可以从这些免费音效网站下载：
         // https://freesound.org/search/?q=firework
         // https://www.zapsplat.com/sound-effect-category/fireworks/

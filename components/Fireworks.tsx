@@ -1,9 +1,18 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { COLORS } from "../constants";
 
 interface FireworksProps {
   onFireworkExplode?: () => void;
 }
+
+// 检测是否是移动设备
+const isMobileDevice = () => {
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    ) || window.innerWidth < 768
+  );
+};
 
 interface Particle {
   x: number;
@@ -22,13 +31,21 @@ const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const animationFrameId = useRef<number>(0);
+  const [isMobile] = useState(isMobileDevice());
 
   const createFirework = useCallback(
     (x: number, y: number) => {
       const types = ["burst", "ring", "glitter"];
       const type = types[Math.floor(Math.random() * types.length)];
+
+      // 移动端减少粒子数量
+      const baseCount = isMobile ? 40 : 80;
       const particleCount =
-        type === "ring" ? 60 : 80 + Math.floor(Math.random() * 30);
+        type === "ring"
+          ? isMobile
+            ? 40
+            : 60
+          : baseCount + Math.floor(Math.random() * (isMobile ? 15 : 30));
       const color = COLORS[Math.floor(Math.random() * COLORS.length)];
       const isGlitter = type === "glitter";
 
@@ -83,8 +100,8 @@ const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
     };
 
     const update = () => {
-      // 半透明黑色覆盖，产生拖尾效果
-      ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+      // 半透明黑色覆盖，产生拖尾效果（移动端加快清除速度）
+      ctx.fillStyle = isMobile ? "rgba(0, 0, 0, 0.25)" : "rgba(0, 0, 0, 0.18)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // 更新和绘制粒子
@@ -122,8 +139,14 @@ const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
 
-      // 控制粒子数量，避免过多
-      if (particles.current.length < 800 && Math.random() < 0.05) {
+      // 控制粒子数量，避免过多（移动端更严格限制）
+      const maxParticles = isMobile ? 400 : 800;
+      const spawnChance = isMobile ? 0.04 : 0.05;
+
+      if (
+        particles.current.length < maxParticles &&
+        Math.random() < spawnChance
+      ) {
         createFirework(
           Math.random() * canvas.width,
           Math.random() * canvas.height * 0.6,
@@ -141,7 +164,7 @@ const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(animationFrameId.current);
     };
-  }, [createFirework]);
+  }, [createFirework, isMobile]);
 
   return (
     <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />

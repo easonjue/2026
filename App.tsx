@@ -130,9 +130,24 @@ const App: React.FC = () => {
   const currentTime =
     currentIndex * GREETING_DURATION + (progress / 100) * GREETING_DURATION;
 
-  // 双击切换进度条显示/隐藏
+  // 双击/双触摸切换进度条显示/隐藏
+  const lastTapRef = useRef<number>(0);
+
   const handleDoubleClick = () => {
     setShowControls(!showControls);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTapRef.current;
+
+    // 双击检测（300ms内两次触摸）
+    if (tapLength < 300 && tapLength > 0) {
+      setShowControls(!showControls);
+      e.preventDefault();
+    }
+
+    lastTapRef.current = currentTime;
   };
 
   // 切换静音
@@ -191,6 +206,7 @@ const App: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 2 }}
             onDoubleClick={handleDoubleClick}
+            onTouchEnd={handleTouchEnd}
             className="cursor-default"
           >
             <Fireworks
@@ -221,13 +237,13 @@ const App: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.3 }}
-                  className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3"
+                  className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 md:gap-3 px-2"
                 >
-                  <div className="flex gap-3 items-center px-5 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
+                  <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl max-w-[95vw]">
                     {/* 上一个按钮 */}
                     <button
                       onClick={handlePrev}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       <svg
                         className="w-4 h-4 text-white/70 fill-current"
@@ -240,7 +256,7 @@ const App: React.FC = () => {
                     {/* 播放/暂停按钮 */}
                     <button
                       onClick={togglePlay}
-                      className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       {isPlaying ? (
                         <svg
@@ -262,7 +278,7 @@ const App: React.FC = () => {
                     {/* 下一个按钮 */}
                     <button
                       onClick={handleNext}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       <svg
                         className="w-4 h-4 text-white/70 fill-current"
@@ -273,23 +289,23 @@ const App: React.FC = () => {
                     </button>
 
                     {/* 分隔线 */}
-                    <div className="w-px h-6 bg-white/20" />
+                    <div className="hidden md:block w-px h-6 bg-white/20" />
 
                     {/* 祝福语进度指示器 */}
-                    <div className="flex gap-1.5 items-center">
+                    <div className="flex gap-1 md:gap-1.5 items-center flex-wrap justify-center max-w-[200px] md:max-w-none">
                       {GREETINGS.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => handleProgressClick(index)}
-                          className="relative group w-4 h-4 flex items-center justify-center"
+                          className="relative group w-6 h-6 md:w-4 md:h-4 flex items-center justify-center touch-none"
                         >
                           <div
-                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            className={`w-2.5 h-2.5 md:w-2 md:h-2 rounded-full transition-all duration-300 ${
                               index === currentIndex
                                 ? "bg-red-500 scale-125"
                                 : index < currentIndex
                                   ? "bg-yellow-500/80"
-                                  : "bg-white/30 hover:bg-white/50"
+                                  : "bg-white/30 hover:bg-white/50 active:bg-white/70"
                             }`}
                           />
                           {/* 当前播放的进度环 */}
@@ -319,7 +335,7 @@ const App: React.FC = () => {
                             </svg>
                           )}
                           {/* 悬停提示 */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/80 rounded text-[10px] text-white/80 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/80 rounded text-[10px] text-white/80 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             {GREETINGS[index].artist}
                           </div>
                         </button>
@@ -327,25 +343,25 @@ const App: React.FC = () => {
                     </div>
 
                     {/* 分隔线 */}
-                    <div className="w-px h-6 bg-white/20" />
+                    <div className="hidden md:block w-px h-6 bg-white/20" />
 
                     {/* 时间和序号 */}
                     <div className="flex flex-col items-end text-right">
-                      <span className="text-xs text-white/60 font-mono">
+                      <span className="text-[10px] md:text-xs text-white/60 font-mono">
                         {formatTime(currentTime)} / {formatTime(totalTime)}
                       </span>
-                      <span className="text-[10px] text-white/40">
+                      <span className="text-[9px] md:text-[10px] text-white/40">
                         {currentIndex + 1} / {GREETINGS.length}
                       </span>
                     </div>
 
                     {/* 分隔线 */}
-                    <div className="w-px h-6 bg-white/20" />
+                    <div className="hidden md:block w-px h-6 bg-white/20" />
 
                     {/* 音量按钮 */}
                     <button
                       onClick={toggleMute}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                      className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                       title={isMuted ? "开启声音" : "静音"}
                     >
                       {isMuted ? (
@@ -367,7 +383,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* 当前祝福语信息 */}
-                  <p className="text-[10px] text-white/30 uppercase tracking-[0.3em]">
+                  <p className="text-[9px] md:text-[10px] text-white/30 uppercase tracking-[0.2em] md:tracking-[0.3em] text-center">
                     {isPlaying ? (
                       <span className="animate-pulse">
                         ♪ {GREETINGS[currentIndex].subText} -{" "}
@@ -387,7 +403,7 @@ const App: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.3 }}
                 exit={{ opacity: 0 }}
-                className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 text-white/30 text-xs tracking-widest"
+                className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 text-white/30 text-[10px] md:text-xs tracking-widest text-center px-4"
               >
                 双击屏幕显示控制
               </motion.div>
