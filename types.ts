@@ -6,7 +6,7 @@ export interface Greeting {
   // 样式配置
   color: string; // 主文字颜色
   glowColor: string; // 发光颜色
-  fontStyle: "brush" | "cao" | "xing" | "kai"; // 字体风格：草书、狂草、行书、行楷
+  fontStyle: "brush" | "cao" | "kai"; // 字体风格：草书、狂草、行楷
   // 动画配置
   animation:
     | "fadeUp"

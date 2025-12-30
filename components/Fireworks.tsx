@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { COLORS } from "../constants";
 
+interface FireworksProps {
+  onFireworkExplode?: () => void;
+}
+
 interface Particle {
   x: number;
   y: number;
@@ -14,50 +18,58 @@ interface Particle {
   type?: string;
 }
 
-const Fireworks: React.FC = () => {
+const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const animationFrameId = useRef<number>(0);
 
-  const createFirework = useCallback((x: number, y: number) => {
-    const types = ["burst", "ring", "glitter"];
-    const type = types[Math.floor(Math.random() * types.length)];
-    const particleCount =
-      type === "ring" ? 60 : 80 + Math.floor(Math.random() * 30);
-    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const isGlitter = type === "glitter";
+  const createFirework = useCallback(
+    (x: number, y: number) => {
+      const types = ["burst", "ring", "glitter"];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const particleCount =
+        type === "ring" ? 60 : 80 + Math.floor(Math.random() * 30);
+      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const isGlitter = type === "glitter";
 
-    for (let i = 0; i < particleCount; i++) {
-      let vx = 0;
-      let vy = 0;
-      let speed = 0;
+      for (let i = 0; i < particleCount; i++) {
+        let vx = 0;
+        let vy = 0;
+        let speed = 0;
 
-      if (type === "ring") {
-        const angle = (i / particleCount) * Math.PI * 2;
-        speed = 4 + Math.random() * 2;
-        vx = Math.cos(angle) * speed;
-        vy = Math.sin(angle) * speed;
-      } else {
-        const angle = Math.random() * Math.PI * 2;
-        speed = 1 + Math.random() * (isGlitter ? 8 : 6);
-        vx = Math.cos(angle) * speed;
-        vy = Math.sin(angle) * speed;
+        if (type === "ring") {
+          const angle = (i / particleCount) * Math.PI * 2;
+          speed = 4 + Math.random() * 2;
+          vx = Math.cos(angle) * speed;
+          vy = Math.sin(angle) * speed;
+        } else {
+          const angle = Math.random() * Math.PI * 2;
+          speed = 1 + Math.random() * (isGlitter ? 8 : 6);
+          vx = Math.cos(angle) * speed;
+          vy = Math.sin(angle) * speed;
+        }
+
+        particles.current.push({
+          x,
+          y,
+          vx,
+          vy,
+          alpha: 1,
+          color,
+          decay: (isGlitter ? 0.006 : 0.012) + Math.random() * 0.018,
+          size: (isGlitter ? 0.5 : 1) + Math.random() * 2,
+          flicker: isGlitter,
+          type,
+        });
       }
 
-      particles.current.push({
-        x,
-        y,
-        vx,
-        vy,
-        alpha: 1,
-        color,
-        decay: (isGlitter ? 0.006 : 0.012) + Math.random() * 0.018,
-        size: (isGlitter ? 0.5 : 1) + Math.random() * 2,
-        flicker: isGlitter,
-        type,
-      });
-    }
-  }, []);
+      // 触发烟花音效
+      if (onFireworkExplode) {
+        onFireworkExplode();
+      }
+    },
+    [onFireworkExplode],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
