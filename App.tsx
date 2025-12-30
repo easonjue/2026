@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false); // 音量控制
   const timerRef = useRef<number | null>(null);
   const audioPlayerRef = useRef<AudioPlayerRef | null>(null);
+  const hideControlsTimerRef = useRef<number | null>(null);
 
   const totalTime = GREETINGS.length * GREETING_DURATION;
 
@@ -133,8 +134,32 @@ const App: React.FC = () => {
   // 双击/双触摸切换进度条显示/隐藏
   const lastTapRef = useRef<number>(0);
 
+  // 显示控制栏并启动自动隐藏计时器
+  const showControlsWithTimer = () => {
+    setShowControls(true);
+
+    // 清除之前的计时器
+    if (hideControlsTimerRef.current) {
+      clearTimeout(hideControlsTimerRef.current);
+    }
+
+    // 2秒后自动隐藏
+    hideControlsTimerRef.current = window.setTimeout(() => {
+      setShowControls(false);
+    }, 2000);
+  };
+
   const handleDoubleClick = () => {
-    setShowControls(!showControls);
+    if (showControls) {
+      // 如果已显示，立即隐藏
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+      }
+      setShowControls(false);
+    } else {
+      // 如果未显示，显示并启动计时器
+      showControlsWithTimer();
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -143,12 +168,42 @@ const App: React.FC = () => {
 
     // 双击检测（300ms内两次触摸）
     if (tapLength < 300 && tapLength > 0) {
-      setShowControls(!showControls);
+      if (showControls) {
+        // 如果已显示，立即隐藏
+        if (hideControlsTimerRef.current) {
+          clearTimeout(hideControlsTimerRef.current);
+        }
+        setShowControls(false);
+      } else {
+        // 如果未显示，显示并启动计时器
+        showControlsWithTimer();
+      }
       e.preventDefault();
     }
 
     lastTapRef.current = currentTime;
   };
+
+  // 当用户与控制栏交互时，重置自动隐藏计时器
+  const resetHideTimer = () => {
+    if (showControls) {
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+      }
+      hideControlsTimerRef.current = window.setTimeout(() => {
+        setShowControls(false);
+      }, 2000);
+    }
+  };
+
+  // 清理计时器
+  useEffect(() => {
+    return () => {
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+      }
+    };
+  }, []);
 
   // 切换静音
   const toggleMute = () => {
@@ -181,7 +236,7 @@ const App: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, filter: "blur(20px)" }}
             transition={{ duration: 1 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-4"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -189,10 +244,17 @@ const App: React.FC = () => {
               transition={{ duration: 1.5, ease: "easeOut" }}
               className="text-center"
             >
-              <h1 className="font-brush text-8xl md:text-[12rem] text-red-600 drop-shadow-[0_0_50px_rgba(220,38,38,0.6)]">
-                万事如意
+              {/* 移动端竖排，桌面端横排 */}
+              <h1 className="font-brush text-red-600 drop-shadow-[0_0_50px_rgba(220,38,38,0.6)]">
+                <span className="hidden md:inline text-[12rem]">万事如意</span>
+                <span className="md:hidden flex flex-col items-center gap-3 text-7xl">
+                  <span>万</span>
+                  <span>事</span>
+                  <span>如</span>
+                  <span>意</span>
+                </span>
               </h1>
-              <p className="mt-8 font-serif-sc text-yellow-500/80 text-xl md:text-2xl tracking-[1.5em] md:tracking-[2em] uppercase">
+              <p className="mt-8 font-serif-sc text-yellow-500/80 text-base md:text-2xl tracking-[0.8em] md:tracking-[2em] uppercase">
                 Happy New Year
               </p>
             </motion.div>
@@ -239,10 +301,17 @@ const App: React.FC = () => {
                   transition={{ duration: 0.3 }}
                   className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 md:gap-3 px-2"
                 >
-                  <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl max-w-[95vw]">
+                  <div
+                    className="flex flex-wrap gap-2 md:gap-3 items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl max-w-[95vw]"
+                    onClick={resetHideTimer}
+                    onTouchStart={resetHideTimer}
+                  >
                     {/* 上一个按钮 */}
                     <button
-                      onClick={handlePrev}
+                      onClick={() => {
+                        handlePrev();
+                        resetHideTimer();
+                      }}
                       className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       <svg
@@ -255,7 +324,10 @@ const App: React.FC = () => {
 
                     {/* 播放/暂停按钮 */}
                     <button
-                      onClick={togglePlay}
+                      onClick={() => {
+                        togglePlay();
+                        resetHideTimer();
+                      }}
                       className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       {isPlaying ? (
@@ -277,7 +349,10 @@ const App: React.FC = () => {
 
                     {/* 下一个按钮 */}
                     <button
-                      onClick={handleNext}
+                      onClick={() => {
+                        handleNext();
+                        resetHideTimer();
+                      }}
                       className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                     >
                       <svg
@@ -296,7 +371,10 @@ const App: React.FC = () => {
                       {GREETINGS.map((_, index) => (
                         <button
                           key={index}
-                          onClick={() => handleProgressClick(index)}
+                          onClick={() => {
+                            handleProgressClick(index);
+                            resetHideTimer();
+                          }}
                           className="relative group w-6 h-6 md:w-4 md:h-4 flex items-center justify-center touch-none"
                         >
                           <div
@@ -360,7 +438,10 @@ const App: React.FC = () => {
 
                     {/* 音量按钮 */}
                     <button
-                      onClick={toggleMute}
+                      onClick={() => {
+                        toggleMute();
+                        resetHideTimer();
+                      }}
                       className="w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20 transition-colors touch-none"
                       title={isMuted ? "开启声音" : "静音"}
                     >

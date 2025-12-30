@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 interface BigCountdownProps {
   targetDate: Date;
@@ -147,6 +148,7 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
   onLastThreeSeconds,
   onSkip,
 }) => {
+  const { isMobile, isTablet } = useMediaQuery();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
     calculateTimeLeft(targetDate),
   );
@@ -177,6 +179,167 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
     return () => clearInterval(timer);
   }, [targetDate, onLastThreeSeconds, hasTriggered]);
 
+  // 移动端专用设计
+  if (isMobile) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
+        transition={{ duration: 0.8 }}
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden px-4"
+      >
+        {/* 背景 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-red-950/20 via-black to-black" />
+
+        {/* 标题 */}
+        <motion.div
+          initial={{ y: -30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+          className="relative mb-12 text-center"
+        >
+          <h1 className="font-brush text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-red-400 to-yellow-200 drop-shadow-lg mb-3">
+            <span onClick={onSkip} className="cursor-default">
+              新
+            </span>
+            年倒计时
+          </h1>
+          <p className="text-xs text-red-200/50 tracking-[0.3em] uppercase">
+            Countdown to 2026
+          </p>
+        </motion.div>
+
+        {/* 倒计时 - 移动端超大显示 */}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="relative flex flex-col gap-6 items-center w-full max-w-sm"
+        >
+          {/* 天数 */}
+          <div className="flex flex-col items-center w-full">
+            <div className="flex gap-2 mb-2">
+              {timeLeft.days
+                .toString()
+                .padStart(2, "0")
+                .split("")
+                .map((digit, i) => (
+                  <div
+                    key={`day-${i}`}
+                    className="relative w-16 h-20 bg-gradient-to-b from-gray-900 to-black rounded-xl border border-red-500/30 flex items-center justify-center shadow-2xl"
+                  >
+                    <motion.span
+                      key={digit}
+                      className="font-mono text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200"
+                      style={{
+                        textShadow: "0 0 30px rgba(255, 100, 100, 0.5)",
+                      }}
+                    >
+                      {digit}
+                    </motion.span>
+                  </div>
+                ))}
+            </div>
+            <span className="text-base text-red-200/70 tracking-widest font-serif-sc">
+              天
+            </span>
+          </div>
+
+          {/* 时:分:秒 - 横向排列 */}
+          <div className="flex gap-3 items-center justify-center w-full">
+            {/* 时 */}
+            <div className="flex flex-col items-center">
+              <div className="flex gap-1 mb-1">
+                {timeLeft.hours
+                  .toString()
+                  .padStart(2, "0")
+                  .split("")
+                  .map((digit, i) => (
+                    <div
+                      key={`hour-${i}`}
+                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
+                    >
+                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
+                        {digit}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <span className="text-xs text-red-200/60 tracking-wider">时</span>
+            </div>
+
+            <span className="text-red-500 text-2xl mb-4">:</span>
+
+            {/* 分 */}
+            <div className="flex flex-col items-center">
+              <div className="flex gap-1 mb-1">
+                {timeLeft.minutes
+                  .toString()
+                  .padStart(2, "0")
+                  .split("")
+                  .map((digit, i) => (
+                    <div
+                      key={`min-${i}`}
+                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
+                    >
+                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
+                        {digit}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <span className="text-xs text-red-200/60 tracking-wider">分</span>
+            </div>
+
+            <span className="text-red-500 text-2xl mb-4">:</span>
+
+            {/* 秒 */}
+            <div className="flex flex-col items-center">
+              <div className="flex gap-1 mb-1">
+                {timeLeft.seconds
+                  .toString()
+                  .padStart(2, "0")
+                  .split("")
+                  .map((digit, i) => (
+                    <div
+                      key={`sec-${i}`}
+                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
+                    >
+                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
+                        {digit}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <span className="text-xs text-red-200/60 tracking-wider">秒</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 底部文字 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-10 text-center"
+        >
+          <p className="text-sm text-white/40 tracking-[0.3em] font-serif-sc mb-2">
+            马年将至 · 万象更新
+          </p>
+          <motion.div
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-xs text-red-500/40 uppercase tracking-widest"
+          >
+            The Year of the Horse
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  // 桌面端设计
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}

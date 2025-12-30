@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Greeting } from "../types";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 // 定义各种动画变体
 const animationVariants: Record<string, Variants> = {
@@ -68,27 +69,208 @@ interface GreetingOverlayProps {
 }
 
 const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
+  const { isMobile, isTablet } = useMediaQuery();
   const activeVariant =
     animationVariants[current.animation] || animationVariants.fadeUp;
   const fontClass = fontStyleMap[current.fontStyle] || "font-brush";
 
+  // 移动端设计
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none px-6">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.id}
+            variants={activeVariant}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center w-full"
+          >
+            {/* 移动端：超大主文字 */}
+            <motion.h1
+              className={`text-5xl leading-tight ${fontClass} mb-6 text-center px-4 max-w-full`}
+              style={{
+                color: current.color,
+                textShadow: `0 0 50px ${current.glowColor}, 0 0 100px ${current.glowColor}`,
+                wordBreak: "keep-all",
+              }}
+              animate={{
+                textShadow: [
+                  `0 0 50px ${current.glowColor}, 0 0 100px ${current.glowColor}`,
+                  `0 0 70px ${current.glowColor}, 0 0 120px ${current.glowColor}`,
+                  `0 0 50px ${current.glowColor}, 0 0 100px ${current.glowColor}`,
+                ],
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {current.text}
+            </motion.h1>
+
+            {/* 分隔线 */}
+            <motion.div
+              className="h-[2px] w-32 mb-5"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${current.color}, transparent)`,
+              }}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            />
+
+            {/* 出处和角色 - 更大字号 */}
+            <motion.div
+              className="flex flex-col items-center gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <p className="text-xl font-serif-sc text-white/90 tracking-wider">
+                {current.subText}
+              </p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-1 h-1 rounded-full"
+                  style={{ backgroundColor: current.color }}
+                />
+                <span
+                  className="text-lg font-serif-sc"
+                  style={{ color: current.color }}
+                >
+                  {current.artist}
+                </span>
+                <div
+                  className="w-1 h-1 rounded-full"
+                  style={{ backgroundColor: current.color }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* 移动端底部标签 - 更清晰 */}
+        <div className="absolute bottom-24 left-0 right-0 flex justify-center">
+          <div className="bg-black/50 backdrop-blur-md rounded-full px-6 py-2 border border-white/10">
+            <p className="text-sm text-white/70 tracking-widest">
+              二〇二六 · 丙午年
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 平板设计
+  if (isTablet) {
+    return (
+      <div className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none px-8">
+        {/* 顶部标签 */}
+        <div className="absolute top-8 left-8 text-left opacity-90">
+          <p className="font-serif-sc text-base tracking-widest text-red-100 mb-2 uppercase">
+            Happy New Year
+          </p>
+          <p className="font-serif-sc text-sm text-white/70">
+            岁月悠长 · 山河无恙
+          </p>
+        </div>
+
+        <div className="absolute top-8 right-8 text-right opacity-90">
+          <p className="font-brush text-2xl text-yellow-200">
+            二〇二六 · 丙午年
+          </p>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.id}
+            variants={activeVariant}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center"
+          >
+            {/* 主文字 */}
+            <motion.h1
+              className={`text-6xl ${fontClass} mb-8 px-6`}
+              style={{
+                color: current.color,
+                textShadow: `0 0 40px ${current.glowColor}, 0 0 80px ${current.glowColor}`,
+              }}
+              animate={{
+                textShadow: [
+                  `0 0 40px ${current.glowColor}, 0 0 80px ${current.glowColor}`,
+                  `0 0 60px ${current.glowColor}, 0 0 100px ${current.glowColor}`,
+                  `0 0 40px ${current.glowColor}, 0 0 80px ${current.glowColor}`,
+                ],
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {current.text}
+            </motion.h1>
+
+            {/* 分隔线 */}
+            <motion.div
+              className="h-[2px] w-28 mb-6"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${current.color}, transparent)`,
+              }}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            />
+
+            {/* 出处和角色 */}
+            <motion.p
+              className="text-2xl font-serif-sc text-white/85 tracking-wide px-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              {current.subText}
+              <span className="opacity-40 mx-3">|</span>
+              <span style={{ color: current.color }}>{current.artist}</span>
+            </motion.p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* 底部装饰 */}
+        <div className="absolute bottom-16 left-8 text-left max-w-sm opacity-80">
+          <h2 className="text-4xl font-brush text-red-600 mb-2 drop-shadow-md">
+            新年大吉
+          </h2>
+          <p className="text-xs text-white/50 leading-relaxed">
+            May the fireworks illuminate your path
+          </p>
+        </div>
+
+        <div className="absolute bottom-16 right-8 flex flex-col items-end opacity-80">
+          <div className="w-20 h-1 mb-3 bg-gradient-to-l from-red-600 to-transparent" />
+          <p className="text-base text-white/70 font-serif-sc tracking-widest">
+            不 负 韶 华
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 桌面设计 - 完整版
   return (
     <div className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none px-4 text-center">
       {/* Top Left Label */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 text-left opacity-80 scale-50 sm:scale-75 md:scale-100">
-        <p className="font-serif-sc text-xs sm:text-sm tracking-wider sm:tracking-widest text-red-100 mb-0.5 sm:mb-1 uppercase">
+      <div className="absolute top-8 left-8 text-left opacity-80">
+        <p className="font-serif-sc text-sm tracking-widest text-red-100 mb-1 uppercase">
           Happy New Year
         </p>
-        <p className="font-serif-sc text-[10px] sm:text-xs text-white/60">
+        <p className="font-serif-sc text-xs text-white/60">
           岁月悠长 · 山河无恙
         </p>
       </div>
 
       {/* Top Right Label */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 text-right opacity-80 scale-50 sm:scale-75 md:scale-100">
-        <p className="font-brush text-base sm:text-xl text-yellow-200">
-          二〇二六 · 丙午年
-        </p>
+      <div className="absolute top-8 right-8 text-right opacity-80">
+        <p className="font-brush text-xl text-yellow-200">二〇二六 · 丙午年</p>
       </div>
 
       {/* Center Animated Greeting */}
@@ -104,7 +286,7 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
         >
           {/* 主文字 */}
           <motion.h1
-            className={`text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl ${fontClass} mb-4 sm:mb-6 md:mb-8 px-4`}
+            className={`text-7xl lg:text-8xl xl:text-9xl ${fontClass} mb-8 px-4`}
             style={{
               color: current.color,
               textShadow: `0 0 40px ${current.glowColor}, 0 0 80px ${current.glowColor}`,
@@ -123,7 +305,7 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
 
           {/* 分隔线 */}
           <motion.div
-            className="h-[1px] sm:h-[2px] w-16 sm:w-24 mb-3 sm:mb-4 md:mb-6"
+            className="h-[2px] w-24 mb-6"
             style={{
               background: `linear-gradient(90deg, transparent, ${current.color}, transparent)`,
             }}
@@ -134,42 +316,42 @@ const GreetingOverlay: React.FC<GreetingOverlayProps> = ({ current }) => {
 
           {/* 出处和角色 */}
           <motion.p
-            className="text-sm sm:text-base md:text-xl lg:text-2xl font-serif-sc text-white/80 tracking-[0.1em] sm:tracking-[0.15em] px-4"
+            className="text-xl md:text-2xl font-serif-sc text-white/80 tracking-[0.15em] px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
           >
             {current.subText}
-            <span className="opacity-40 mx-2 sm:mx-3">|</span>
+            <span className="opacity-40 mx-3">|</span>
             <span style={{ color: current.color }}>{current.artist}</span>
           </motion.p>
         </motion.div>
       </AnimatePresence>
 
       {/* Bottom UI Decoration */}
-      <div className="hidden sm:block absolute bottom-20 sm:bottom-12 left-4 sm:left-8 text-left max-w-[200px] sm:max-w-xs scale-50 sm:scale-75 md:scale-100">
-        <div className="mb-2 sm:mb-4">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-brush text-red-600 mb-0.5 sm:mb-1 drop-shadow-md">
+      <div className="absolute bottom-12 left-8 text-left max-w-xs scale-90">
+        <div className="mb-4">
+          <h2 className="text-4xl font-brush text-red-600 mb-1 drop-shadow-md">
             新年大吉
           </h2>
-          <p className="text-[9px] sm:text-[10px] md:text-xs text-white/40 leading-tight uppercase tracking-wide sm:tracking-widest">
+          <p className="text-xs text-white/40 leading-tight uppercase tracking-widest">
             Celestial Harmony
             <br />
             Lunar Cycle 2026
           </p>
         </div>
-        <p className="text-[8px] sm:text-[9px] md:text-[11px] text-white/30 uppercase tracking-tighter leading-relaxed font-sans border-l border-red-900/50 pl-2 sm:pl-3">
+        <p className="text-[11px] text-white/30 uppercase tracking-tighter leading-relaxed font-sans border-l border-red-900/50 pl-3">
           May the fireworks illuminate your path and the cheers of the new year
           bring endless joy to your heart.
         </p>
       </div>
 
-      <div className="hidden sm:flex absolute bottom-20 sm:bottom-12 right-4 sm:right-8 flex-col items-end scale-50 sm:scale-75 md:scale-100">
-        <div className="w-12 sm:w-16 h-0.5 sm:h-1 mb-2 sm:mb-4 bg-gradient-to-l from-red-600 to-transparent" />
-        <p className="text-xs sm:text-sm text-white/60 font-serif-sc tracking-wider sm:tracking-widest">
+      <div className="absolute bottom-12 right-8 flex flex-col items-end scale-90">
+        <div className="w-16 h-1 mb-4 bg-gradient-to-l from-red-600 to-transparent" />
+        <p className="text-sm text-white/60 font-serif-sc tracking-widest">
           不 负 韶 华
         </p>
-        <p className="text-[9px] sm:text-[10px] text-white/20 mt-0.5 sm:mt-1 uppercase font-sans">
+        <p className="text-[10px] text-white/20 mt-1 uppercase font-sans">
           Dreams ignite the future
         </p>
       </div>
