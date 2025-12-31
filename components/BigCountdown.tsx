@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useMediaQuery } from "../hooks/useMediaQuery";
+import NeonLights from "./NeonLights";
+import PremiumTimeUnit from "./PremiumTimeUnit";
+import PremiumSeparator from "./PremiumSeparator";
+import AnimatedTitle from "./AnimatedTitle";
 
 interface BigCountdownProps {
   targetDate: Date;
@@ -31,117 +35,6 @@ const calculateTimeLeft = (targetDate: Date): TimeLeft => {
     total: difference,
   };
 };
-
-// 单个数字卡片组件
-const DigitCard: React.FC<{ digit: string; label: string }> = ({
-  digit,
-  label,
-}) => {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative">
-        {/* 背景光晕 */}
-        <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-3xl" />
-
-        {/* 卡片主体 */}
-        <motion.div
-          className="relative w-12 h-16 sm:w-16 sm:h-20 md:w-24 md:h-32 lg:w-32 lg:h-40 bg-gradient-to-b from-gray-900 to-black rounded-lg md:rounded-xl border border-red-500/30 flex items-center justify-center overflow-hidden shadow-2xl"
-          style={{
-            boxShadow:
-              "0 0 40px rgba(220, 38, 38, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
-          }}
-        >
-          {/* 顶部高光 */}
-          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent" />
-
-          {/* 中间分割线 */}
-          <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-black/50" />
-
-          {/* 数字 */}
-          <AnimatePresence mode="popLayout">
-            <motion.span
-              key={digit}
-              initial={{ y: -80, opacity: 0, rotateX: -90 }}
-              animate={{ y: 0, opacity: 1, rotateX: 0 }}
-              exit={{ y: 80, opacity: 0, rotateX: 90 }}
-              transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                duration: 0.5,
-              }}
-              className="font-mono text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200 drop-shadow-lg"
-              style={{
-                textShadow: "0 0 30px rgba(255, 100, 100, 0.5)",
-              }}
-            >
-              {digit}
-            </motion.span>
-          </AnimatePresence>
-        </motion.div>
-      </div>
-
-      {/* 标签 */}
-      <span className="mt-1 sm:mt-2 md:mt-4 text-[10px] sm:text-xs md:text-sm text-red-200/60 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-serif-sc">
-        {label}
-      </span>
-    </div>
-  );
-};
-
-// 时间单位组件（两位数）
-const TimeUnit: React.FC<{ value: number; label: string }> = ({
-  value,
-  label,
-}) => {
-  const digits = value.toString().padStart(2, "0").split("");
-
-  return (
-    <div className="flex flex-col items-center">
-      <div className="flex gap-0.5 sm:gap-1 md:gap-2">
-        {digits.map((digit, index) => (
-          <DigitCard key={`${label}-${index}`} digit={digit} label="" />
-        ))}
-      </div>
-      <span className="mt-1 sm:mt-2 md:mt-4 text-[10px] sm:text-xs md:text-sm text-red-200/60 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-serif-sc">
-        {label}
-      </span>
-    </div>
-  );
-};
-
-// 分隔符组件
-const Separator: React.FC = () => (
-  <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 md:gap-4 px-0.5 sm:px-1 md:px-3 pb-4 sm:pb-6 md:pb-8">
-    <motion.div
-      animate={{
-        opacity: [1, 0.3, 1],
-        scale: [1, 0.8, 1],
-      }}
-      transition={{
-        duration: 1,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-      className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
-      style={{ boxShadow: "0 0 15px rgba(220, 38, 38, 0.8)" }}
-    />
-    <motion.div
-      animate={{
-        opacity: [1, 0.3, 1],
-        scale: [1, 0.8, 1],
-      }}
-      transition={{
-        duration: 1,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay: 0.5,
-      }}
-      className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-red-500 shadow-lg"
-      style={{ boxShadow: "0 0 15px rgba(220, 38, 38, 0.8)" }}
-    />
-  </div>
-);
 
 const BigCountdown: React.FC<BigCountdownProps> = ({
   targetDate,
@@ -189,131 +82,29 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         transition={{ duration: 0.8 }}
         className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden px-4"
       >
-        {/* 背景 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/20 via-black to-black" />
+        {/* 霓虹灯背景效果 */}
+        <NeonLights />
 
-        {/* 标题 */}
-        <motion.div
-          initial={{ y: -30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="relative mb-12 text-center"
-        >
-          <h1 className="font-brush text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-red-400 to-yellow-200 drop-shadow-lg mb-3">
-            <span onClick={onSkip} className="cursor-default">
-              新
-            </span>
-            年倒计时
-          </h1>
-          <p className="text-xs text-red-200/50 tracking-[0.3em] uppercase">
-            Countdown to 2026
-          </p>
-        </motion.div>
+        {/* 背景渐变叠加 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
+
+        {/* 标题 - 使用动画标题组件 */}
+        <AnimatedTitle onSkip={onSkip} />
 
         {/* 倒计时 - 移动端超大显示 */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="relative flex flex-col gap-6 items-center w-full max-w-sm"
+          className="relative flex flex-col gap-4 sm:gap-6 items-center w-full max-w-sm px-2"
         >
-          {/* 天数 */}
-          <div className="flex flex-col items-center w-full">
-            <div className="flex gap-2 mb-2">
-              {timeLeft.days
-                .toString()
-                .padStart(2, "0")
-                .split("")
-                .map((digit, i) => (
-                  <div
-                    key={`day-${i}`}
-                    className="relative w-16 h-20 bg-gradient-to-b from-gray-900 to-black rounded-xl border border-red-500/30 flex items-center justify-center shadow-2xl"
-                  >
-                    <motion.span
-                      key={digit}
-                      className="font-mono text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200"
-                      style={{
-                        textShadow: "0 0 30px rgba(255, 100, 100, 0.5)",
-                      }}
-                    >
-                      {digit}
-                    </motion.span>
-                  </div>
-                ))}
-            </div>
-            <span className="text-base text-red-200/70 tracking-widest font-serif-sc">
-              天
-            </span>
-          </div>
-
           {/* 时:分:秒 - 横向排列 */}
-          <div className="flex gap-3 items-center justify-center w-full">
-            {/* 时 */}
-            <div className="flex flex-col items-center">
-              <div className="flex gap-1 mb-1">
-                {timeLeft.hours
-                  .toString()
-                  .padStart(2, "0")
-                  .split("")
-                  .map((digit, i) => (
-                    <div
-                      key={`hour-${i}`}
-                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
-                    >
-                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
-                        {digit}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-              <span className="text-xs text-red-200/60 tracking-wider">时</span>
-            </div>
-
-            <span className="text-red-500 text-2xl mb-4">:</span>
-
-            {/* 分 */}
-            <div className="flex flex-col items-center">
-              <div className="flex gap-1 mb-1">
-                {timeLeft.minutes
-                  .toString()
-                  .padStart(2, "0")
-                  .split("")
-                  .map((digit, i) => (
-                    <div
-                      key={`min-${i}`}
-                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
-                    >
-                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
-                        {digit}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-              <span className="text-xs text-red-200/60 tracking-wider">分</span>
-            </div>
-
-            <span className="text-red-500 text-2xl mb-4">:</span>
-
-            {/* 秒 */}
-            <div className="flex flex-col items-center">
-              <div className="flex gap-1 mb-1">
-                {timeLeft.seconds
-                  .toString()
-                  .padStart(2, "0")
-                  .split("")
-                  .map((digit, i) => (
-                    <div
-                      key={`sec-${i}`}
-                      className="relative w-10 h-14 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-red-500/30 flex items-center justify-center shadow-xl"
-                    >
-                      <span className="font-mono text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-red-100 to-red-200">
-                        {digit}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-              <span className="text-xs text-red-200/60 tracking-wider">秒</span>
-            </div>
+          <div className="flex gap-1 sm:gap-2 items-center justify-center w-full">
+            <PremiumTimeUnit value={timeLeft.hours} label="时" />
+            <PremiumSeparator />
+            <PremiumTimeUnit value={timeLeft.minutes} label="分" />
+            <PremiumSeparator />
+            <PremiumTimeUnit value={timeLeft.seconds} label="秒" />
           </div>
         </motion.div>
 
@@ -322,15 +113,15 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 1 }}
-          className="absolute bottom-10 text-center"
+          className="absolute bottom-6 sm:bottom-10 text-center px-4"
         >
-          <p className="text-sm text-white/40 tracking-[0.3em] font-serif-sc mb-2">
+          <p className="text-xs sm:text-sm text-amber-100/30 tracking-[0.2em] sm:tracking-[0.3em] font-serif-sc mb-2 font-light">
             马年将至 · 万象更新
           </p>
           <motion.div
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-xs text-red-500/40 uppercase tracking-widest"
+            animate={{ opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="text-[10px] sm:text-xs text-amber-200/30 uppercase tracking-wider sm:tracking-widest font-light"
           >
             The Year of the Horse
           </motion.div>
@@ -348,27 +139,11 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
       transition={{ duration: 0.8 }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden"
     >
-      {/* 背景装饰 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-red-950/20 via-black to-black" />
+      {/* 霓虹灯背景效果 */}
+      <NeonLights />
 
-      {/* 动态光效背景 */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            rotate: 360,
-          }}
-          transition={{
-            duration: 60,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%]"
-          style={{
-            background:
-              "conic-gradient(from 0deg, transparent, rgba(220, 38, 38, 0.1), transparent, rgba(220, 38, 38, 0.05), transparent)",
-          }}
-        />
-      </div>
+      {/* 背景渐变叠加 */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
 
       {/* 粒子装饰 */}
       {[...Array(20)].map((_, i) => (
@@ -396,23 +171,8 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         />
       ))}
 
-      {/* 标题 */}
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-        className="relative mb-6 sm:mb-8 md:mb-12 text-center px-4"
-      >
-        <h1 className="font-brush text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-red-400 to-yellow-200 drop-shadow-lg">
-          <span onClick={onSkip} className="cursor-default">
-            新
-          </span>
-          年倒计时
-        </h1>
-        <p className="mt-2 text-xs sm:text-sm md:text-base text-red-200/50 tracking-[0.3em] sm:tracking-[0.5em] uppercase">
-          Countdown to 2026
-        </p>
-      </motion.div>
+      {/* 标题 - 使用动画标题组件 */}
+      <AnimatedTitle onSkip={onSkip} />
 
       {/* 倒计时主体 */}
       <motion.div
@@ -421,13 +181,11 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         transition={{ delay: 0.5, duration: 0.8 }}
         className="relative flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 px-2 sm:px-4"
       >
-        <TimeUnit value={timeLeft.days} label="天" />
-        <Separator />
-        <TimeUnit value={timeLeft.hours} label="时" />
-        <Separator />
-        <TimeUnit value={timeLeft.minutes} label="分" />
-        <Separator />
-        <TimeUnit value={timeLeft.seconds} label="秒" />
+        <PremiumTimeUnit value={timeLeft.hours} label="时" />
+        <PremiumSeparator />
+        <PremiumTimeUnit value={timeLeft.minutes} label="分" />
+        <PremiumSeparator />
+        <PremiumTimeUnit value={timeLeft.seconds} label="秒" />
       </motion.div>
 
       {/* 底部装饰文字 */}
@@ -437,23 +195,86 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         transition={{ delay: 1, duration: 1 }}
         className="absolute bottom-6 sm:bottom-8 md:bottom-12 text-center px-4"
       >
-        <p className="text-[10px] sm:text-xs md:text-sm text-white/30 tracking-[0.2em] sm:tracking-[0.3em] font-serif-sc">
+        <p className="text-[10px] sm:text-xs md:text-sm text-amber-100/25 tracking-[0.2em] sm:tracking-[0.3em] font-serif-sc font-light">
           马年将至 · 万象更新
         </p>
         <motion.div
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="mt-2 sm:mt-4 text-[9px] sm:text-[10px] text-red-500/40 uppercase tracking-wider sm:tracking-widest"
+          animate={{ opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="mt-2 sm:mt-4 text-[9px] sm:text-[10px] text-amber-200/25 uppercase tracking-wider sm:tracking-widest font-light"
         >
           The Year of the Horse
         </motion.div>
       </motion.div>
 
-      {/* 四角装饰 */}
-      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l-2 border-t-2 border-red-500/30" />
-      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r-2 border-t-2 border-red-500/30" />
-      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l-2 border-b-2 border-red-500/30" />
-      <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r-2 border-b-2 border-red-500/30" />
+      {/* 四角装饰 - 优雅的边框 */}
+      <motion.div
+        className="absolute top-2 sm:top-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l border-t"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          borderColor: [
+            "rgba(251, 191, 36, 0.3)",
+            "rgba(239, 68, 68, 0.3)",
+            "rgba(251, 191, 36, 0.3)",
+          ],
+        }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r border-t"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          borderColor: [
+            "rgba(239, 68, 68, 0.3)",
+            "rgba(251, 191, 36, 0.3)",
+            "rgba(239, 68, 68, 0.3)",
+          ],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1.5,
+        }}
+      />
+      <motion.div
+        className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 w-8 h-8 sm:w-16 sm:h-16 border-l border-b"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          borderColor: [
+            "rgba(251, 191, 36, 0.3)",
+            "rgba(239, 68, 68, 0.3)",
+            "rgba(251, 191, 36, 0.3)",
+          ],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 3,
+        }}
+      />
+      <motion.div
+        className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 w-8 h-8 sm:w-16 sm:h-16 border-r border-b"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          borderColor: [
+            "rgba(239, 68, 68, 0.3)",
+            "rgba(251, 191, 36, 0.3)",
+            "rgba(239, 68, 68, 0.3)",
+          ],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 4.5,
+        }}
+      />
     </motion.div>
   );
 };
