@@ -12,7 +12,7 @@ const AnimatedTitle: React.FC<AnimatedTitleProps> = ({ onSkip }) => {
   const [showTransition, setShowTransition] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
 
-  const rightText = "你好，刘睿明老师！";
+  const rightText = "你好，范君老师！";
 
   useEffect(() => {
     // 阶段1: 左侧打字效果 "2025年" (0-1.2s)
