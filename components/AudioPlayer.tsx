@@ -9,7 +9,6 @@ interface AudioPlayerProps {
   isMuted: boolean;
   isPlaying: boolean;
   currentIndex: number;
-  onGreetingChange?: (index: number) => void;
 }
 
 export interface AudioPlayerRef {
@@ -18,16 +17,15 @@ export interface AudioPlayerRef {
 }
 
 const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
-  ({ isMuted, isPlaying, currentIndex, onGreetingChange }, ref) => {
+  ({ isMuted, isPlaying, currentIndex }, ref) => {
     const bgmRef = useRef<HTMLAudioElement | null>(null);
     const fireworkSoundsRef = useRef<HTMLAudioElement[]>([]);
-    const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
-    const lastSpokenIndexRef = useRef<number>(-1);
+    const lastIndexRef = useRef<number>(-1);
 
     // 暴露方法给父组件
     useImperativeHandle(ref, () => ({
       seekTo: (index: number) => {
-        lastSpokenIndexRef.current = -1; // 重置，允许重新朗读
+        lastIndexRef.current = -1; // 重置索引
       },
       playFireworkSound: () => {
         if (isMuted) return;
@@ -48,69 +46,65 @@ const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
 
     // 初始化音频资源
     useEffect(() => {
-      // 背景音乐
+      // 背景音乐 - 使用 sec.mp3
       const bgm = new Audio();
+      bgm.src = "assets/sounds/sec.mp3";
       bgm.loop = true;
       bgm.volume = 0.25;
-
-      // 使用 freesound.org 或 YouTube Audio Library 的免费音乐
-      // 这里使用一个占位符，你需要下载音乐文件放到 public 目录
-      // bgm.src = "/2026/bgm.mp3";
-
-      // 或者使用 Web Audio API 生成简单的背景音
+      
+      // iOS Safari 兼容性修复
+      bgm.preload = "metadata"; // 减少预加载，避免iOS限制
+      bgm.playsInline = true; // 防止iOS全屏播放
+      
       bgmRef.current = bgm;
 
-      // 预加载多个烟花音效（使用不同频率模拟不同的烟花声音）
+      // 预加载烟花音效
       const fireworkUrls = [
         "assets/sounds/firework-display-16679.mp3",
-        // 你可以从这些免费音效网站下载：
-        // https://freesound.org/search/?q=firework
-        // https://www.zapsplat.com/sound-effect-category/fireworks/
-        //
-        // 暂时使用占位符，实际使用时替换成真实的音频文件路径
-        // "/2026/sounds/firework1.mp3",
-        // "/2026/sounds/firework2.mp3",
-        // "/2026/sounds/firework3.mp3",
-        // "/2026/sounds/firework4.mp3",
       ];
 
       // 如果有音效文件，加载它们
       if (fireworkUrls.length > 0) {
         fireworkSoundsRef.current = fireworkUrls.map((url) => {
           const audio = new Audio(url);
-          audio.preload = "auto";
+          audio.preload = "metadata"; // iOS Safari 兼容性
+          audio.playsInline = true; // 防止iOS全屏播放
           return audio;
         });
-      }
-
-      // 加载语音列表
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          window.speechSynthesis.getVoices();
-        };
       }
 
       // 尝试自动播放背景音乐（需要用户交互）
       const playBGM = () => {
         if (bgm.src && !isMuted) {
-          bgm.play().catch(() => {
+          // iOS Safari 兼容性：添加更多错误处理
+          bgm.play().catch((error) => {
+            console.log("Background music autoplay blocked:", error);
             // 自动播放被阻止，等待用户交互
           });
         }
       };
 
-      // 监听用户的首次点击
+      // 监听用户的首次点击 - iOS Safari 需要用户手势
       const handleFirstInteraction = () => {
         playBGM();
+        // iOS Safari 可能需要多次尝试
+        setTimeout(() => {
+          if (bgm.paused && bgm.src && !isMuted) {
+            bgm.play().catch(() => {});
+          }
+        }, 100);
         document.removeEventListener("click", handleFirstInteraction);
+        document.removeEventListener("touchstart", handleFirstInteraction);
       };
+      
       document.addEventListener("click", handleFirstInteraction);
+      document.addEventListener("touchstart", handleFirstInteraction); // iOS 触摸事件
 
       return () => {
         bgm.pause();
-        window.speechSynthesis.cancel();
         fireworkSoundsRef.current.forEach((sound) => sound.pause());
         document.removeEventListener("click", handleFirstInteraction);
+        document.removeEventListener("touchstart", handleFirstInteraction);
       };
     }, []);
 
@@ -126,72 +120,6 @@ const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
       }
     }, [isMuted, isPlaying]);
 
-    // 当祝福语切换时，朗读新的祝福语
-    useEffect(() => {
-      if (isMuted || !isPlaying) {
-        window.speechSynthesis.cancel();
-        return;
-      }
-
-      // 避免重复朗读同一条
-      if (lastSpokenIndexRef.current === currentIndex) {
-        return;
-      }
-
-      lastSpokenIndexRef.current = currentIndex;
-
-      // 停止之前的朗读
-      window.speechSynthesis.cancel();
-
-      // 延迟一点开始朗读，让动画先进入
-      setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance();
-
-        // 只读主文本，不读副标题
-        utterance.text = window.GREETINGS?.[currentIndex]?.text || "";
-
-        // 设置语音参数
-        utterance.lang = "zh-CN";
-        utterance.rate = 0.85; // 语速慢一点，更有韵味
-        utterance.pitch = 1.05; // 音调稍高
-        utterance.volume = isMuted ? 0 : 0.9;
-
-        // 优先选择中文女声
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoices = voices.filter(
-          (voice) =>
-            (voice.lang === "zh-CN" || voice.lang.startsWith("zh")) &&
-            (voice.name.includes("Female") ||
-              voice.name.includes("女") ||
-              voice.name.includes("Ting") ||
-              voice.name.includes("Huihui")),
-        );
-
-        if (preferredVoices.length > 0) {
-          utterance.voice = preferredVoices[0];
-        } else {
-          const chineseVoice = voices.find((voice) =>
-            voice.lang.startsWith("zh"),
-          );
-          if (chineseVoice) {
-            utterance.voice = chineseVoice;
-          }
-        }
-
-        speechSynthesisRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-      }, 300);
-    }, [currentIndex, isMuted, isPlaying]);
-
-    // 暂停时停止朗读
-    useEffect(() => {
-      if (!isPlaying) {
-        window.speechSynthesis.pause();
-      } else {
-        window.speechSynthesis.resume();
-      }
-    }, [isPlaying]);
-
     return null;
   },
 );
@@ -199,10 +127,3 @@ const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
 AudioPlayer.displayName = "AudioPlayer";
 
 export default AudioPlayer;
-
-// 扩展 Window 接口以支持 GREETINGS
-declare global {
-  interface Window {
-    GREETINGS?: Array<{ text: string; subText: string; artist: string }>;
-  }
-}

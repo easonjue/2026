@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Fireworks from "./components/Fireworks";
 import GreetingOverlay from "./components/GreetingOverlay";
+import GreetingCard from "./components/GreetingCard";
 import Countdown from "./components/Countdown";
 import BigCountdown from "./components/BigCountdown";
 import AudioPlayer, { AudioPlayerRef } from "./components/AudioPlayer";
 import { GREETINGS } from "./constants";
+import { initIOSCompatibility, getIOSCompatibilityInfo } from "./utils/iosCompatibility";
 
 // 将 GREETINGS 暴露给全局，供 AudioPlayer 使用
 if (typeof window !== "undefined") {
@@ -38,11 +40,26 @@ const App: React.FC = () => {
   const [progress, setProgress] = useState(0); // 当前祝福语的进度 0-100
   const [showControls, setShowControls] = useState(false); // 控制进度条显示/隐藏
   const [isMuted, setIsMuted] = useState(false); // 音量控制
+  const [useCardStyle, setUseCardStyle] = useState(true); // 使用卡片式显示
   const timerRef = useRef<number | null>(null);
   const audioPlayerRef = useRef<AudioPlayerRef | null>(null);
   const hideControlsTimerRef = useRef<number | null>(null);
 
   const totalTime = GREETINGS.length * GREETING_DURATION;
+
+  // iOS Safari 兼容性初始化
+  useEffect(() => {
+    initIOSCompatibility();
+    
+    // 输出兼容性信息用于调试
+    const compatInfo = getIOSCompatibilityInfo();
+    console.log('iOS Compatibility Info:', compatInfo);
+    
+    // 如果是iOS Safari，显示兼容性提示
+    if (compatInfo.isIOSSafari) {
+      console.log('Running on iOS Safari - compatibility fixes applied');
+    }
+  }, []);
 
   // 播放计时器
   useEffect(() => {
@@ -210,6 +227,11 @@ const App: React.FC = () => {
     setIsMuted(!isMuted);
   };
 
+  // 切换显示样式
+  const toggleDisplayStyle = () => {
+    setUseCardStyle(!useCardStyle);
+  };
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black font-sans">
       {/* Background Ambience */}
@@ -222,11 +244,16 @@ const App: React.FC = () => {
             targetDate={NEW_YEAR_2026}
             onLastThreeSeconds={handleLastThreeSeconds}
             onSkip={handleSkip}
+            isMuted={isMuted}
           />
         )}
 
         {state === "COUNTDOWN" && (
-          <Countdown key="countdown" onComplete={handleCountdownComplete} />
+          <Countdown 
+            key="countdown" 
+            onComplete={handleCountdownComplete}
+            isMuted={isMuted}
+          />
         )}
 
         {state === "SPLASH" && (

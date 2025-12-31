@@ -1,27 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMediaQuery } from "../hooks/useMediaQuery";
+import CountdownAudio, { CountdownAudioRef } from "./CountdownAudio";
 
 interface CountdownProps {
   onComplete: () => void;
+  isMuted?: boolean;
 }
 
-const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
+const Countdown: React.FC<CountdownProps> = ({ onComplete, isMuted = false }) => {
   const [count, setCount] = useState(3);
   const { isMobile } = useMediaQuery();
+  const audioRef = useRef<CountdownAudioRef>(null);
 
   useEffect(() => {
+    // 开始播放背景音乐
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+
     if (count > 0) {
       const timer = setTimeout(() => setCount(count - 1), 1000);
       return () => clearTimeout(timer);
     } else {
-      const timer = setTimeout(onComplete, 800);
+      const timer = setTimeout(() => {
+        // 停止背景音乐
+        if (audioRef.current) {
+          audioRef.current.stop();
+        }
+        onComplete();
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, [count, onComplete]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black overflow-hidden">
+      {/* 倒计时背景音乐 */}
+      <CountdownAudio
+        ref={audioRef}
+        isPlaying={true}
+        isMuted={isMuted}
+        volume={0.4}
+      />
+      
       <AnimatePresence mode="wait">
         {count > 0 ? (
           <motion.div

@@ -42,18 +42,27 @@ body {
     * {
         user-select: none;
         -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
     /* 优化触摸反馈 */
     button,
     a {
         -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none; /* iOS Safari 禁用长按菜单 */
     }
 
     /* 防止字体过大导致的布局问题 */
     html {
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
+    }
+    
+    /* iOS Safari 防止橡皮筋效果 */
+    body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
@@ -90,13 +99,34 @@ body,
     height: 100%;
     overflow: hidden;
     position: fixed;
+    /* iOS Safari 兼容性 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
 }
 
-/* 安全区域适配（刘海屏） */
+/* 安全区域适配（刘海屏）- iOS Safari 优化 */
 @supports (padding: max(0px)) {
     body {
         padding-left: max(0px, env(safe-area-inset-left));
         padding-right: max(0px, env(safe-area-inset-right));
         padding-bottom: max(0px, env(safe-area-inset-bottom));
+        padding-top: max(0px, env(safe-area-inset-top));
+    }
+}
+
+/* iOS Safari 特定修复 */
+@supports (-webkit-appearance: none) {
+    /* iOS Safari 音频元素样式修复 */
+    audio {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    /* iOS Safari Canvas 性能优化 */
+    canvas {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
     }
 }

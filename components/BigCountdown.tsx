@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import NeonLights from "./NeonLights";
 import PremiumTimeUnit from "./PremiumTimeUnit";
 import PremiumSeparator from "./PremiumSeparator";
 import AnimatedTitle from "./AnimatedTitle";
+import CountdownAudio, { CountdownAudioRef } from "./CountdownAudio";
 
 interface BigCountdownProps {
   targetDate: Date;
   onLastThreeSeconds: () => void;
   onSkip?: () => void;
+  isMuted?: boolean;
 }
 
 interface TimeLeft {
@@ -40,14 +42,21 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
   targetDate,
   onLastThreeSeconds,
   onSkip,
+  isMuted = false,
 }) => {
   const { isMobile, isTablet } = useMediaQuery();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
     calculateTimeLeft(targetDate),
   );
   const [hasTriggered, setHasTriggered] = useState(false);
+  const audioRef = useRef<CountdownAudioRef>(null);
 
   useEffect(() => {
+    // 开始播放背景音乐
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+
     const timer = setInterval(() => {
       const newTimeLeft = calculateTimeLeft(targetDate);
       setTimeLeft(newTimeLeft);
@@ -56,6 +65,10 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
       if (newTimeLeft.total <= 3000 && newTimeLeft.total > 0 && !hasTriggered) {
         setHasTriggered(true);
         clearInterval(timer);
+        // 停止背景音乐
+        if (audioRef.current) {
+          audioRef.current.stop();
+        }
         onLastThreeSeconds();
       }
 
@@ -64,12 +77,22 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         clearInterval(timer);
         if (!hasTriggered) {
           setHasTriggered(true);
+          // 停止背景音乐
+          if (audioRef.current) {
+            audioRef.current.stop();
+          }
           onLastThreeSeconds();
         }
       }
     }, 100);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      // 组件卸载时停止音乐
+      if (audioRef.current) {
+        audioRef.current.stop();
+      }
+    };
   }, [targetDate, onLastThreeSeconds, hasTriggered]);
 
   // 移动端专用设计
@@ -82,6 +105,14 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
         transition={{ duration: 0.8 }}
         className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden px-4"
       >
+        {/* 倒计时背景音乐 */}
+        <CountdownAudio
+          ref={audioRef}
+          isPlaying={true}
+          isMuted={isMuted}
+          volume={0.3}
+        />
+        
         {/* 霓虹灯背景效果 */}
         <NeonLights />
 
@@ -139,6 +170,14 @@ const BigCountdown: React.FC<BigCountdownProps> = ({
       transition={{ duration: 0.8 }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden"
     >
+      {/* 倒计时背景音乐 */}
+      <CountdownAudio
+        ref={audioRef}
+        isPlaying={true}
+        isMuted={isMuted}
+        volume={0.3}
+      />
+      
       {/* 霓虹灯背景效果 */}
       <NeonLights />
 

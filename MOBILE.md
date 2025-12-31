@@ -9,6 +9,13 @@
 - **平板** (640px - 1024px) - 中等屏幕优化
 - **桌面** (> 1024px) - 大屏幕完整体验
 
+### 🎵 音频功能
+- ✅ **背景音乐**: 倒计时页面自动播放背景音乐
+- ✅ **烟花音效**: 烟花爆炸时播放音效
+- ✅ **语音朗读**: 自动朗读祝福语内容
+- ✅ **音量控制**: 支持静音/取消静音
+- ✅ **自动播放**: 智能处理浏览器自动播放限制
+
 ### 🎯 触摸优化
 - ✅ 双击屏幕显示/隐藏控制栏（替代双击鼠标）
 - ✅ 触摸友好的按钮尺寸（最小 44x44px）
@@ -51,6 +58,39 @@
 - 标准的响应式布局
 - 控制栏自动换行
 - 字体大小自适应
+
+### 🎵 音频文件
+- `assets/sounds/frist.mp3` - 倒计时背景音乐
+- `assets/sounds/firework-display-16679.mp3` - 烟花音效
+
+## 🔧 iOS Safari 兼容性修复
+
+### 新增兼容性工具
+- ✅ **设备检测**: 自动检测iOS Safari浏览器
+- ✅ **音频修复**: 自动应用iOS Safari音频播放修复
+- ✅ **语音优化**: 支持iOS中文语音（Mei-Jia, Sin-ji等）
+- ✅ **Canvas优化**: 启用硬件加速和像素比适配
+- ✅ **触摸优化**: 防止长按菜单和双指缩放
+
+### 兼容性测试
+使用 `debug/ios-compatibility-test.html` 进行兼容性测试：
+- 设备信息检测
+- 音频播放测试
+- 语音合成测试
+- Canvas性能测试
+- 触摸事件测试
+
+### 使用方法
+```typescript
+import { initIOSCompatibility, getIOSCompatibilityInfo } from './utils/iosCompatibility';
+
+// 应用启动时初始化
+initIOSCompatibility();
+
+// 获取兼容性信息
+const compatInfo = getIOSCompatibilityInfo();
+console.log('iOS Compatibility:', compatInfo);
+```
 
 ## 🔧 技术细节
 
@@ -115,10 +155,15 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 
 ## 🐛 已知问题
 
-### iOS 特定
-- ⚠️ 语音朗读在静音模式下可能无法播放
-- ⚠️ 背景音乐需要用户手势触发
-- ✅ 已添加首次点击自动播放逻辑
+### iOS Safari 特定问题
+- ⚠️ **语音朗读限制**: 在静音模式下可能无法播放，需要用户手势触发
+- ⚠️ **背景音乐限制**: 需要用户交互才能播放，已添加首次点击自动播放逻辑
+- ⚠️ **自动播放策略**: iOS Safari 严格限制音频自动播放
+- ⚠️ **Canvas 性能**: 在老款设备上可能出现性能问题
+- ✅ **已修复**: 添加了 `playsInline` 属性防止全屏播放
+- ✅ **已修复**: 优化了语音选择逻辑，支持iOS中文语音
+- ✅ **已修复**: 添加了安全区域适配（刘海屏）
+- ✅ **已修复**: 防止橡皮筋效果和页面滚动
 
 ### Android 特定
 - ✅ Chrome 自动播放策略已处理

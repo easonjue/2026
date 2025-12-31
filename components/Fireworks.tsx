@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { COLORS } from "../constants";
+import { isIOSSafari, optimizeCanvasForIOS } from "../utils/iosCompatibility";
 
 interface FireworksProps {
   onFireworkExplode?: () => void;
@@ -94,9 +95,19 @@ const Fireworks: React.FC<FireworksProps> = ({ onFireworkExplode }) => {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
+    // iOS Safari Canvas 优化
+    if (isIOSSafari()) {
+      optimizeCanvasForIOS(canvas);
+    }
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      
+      // iOS Safari 重新优化
+      if (isIOSSafari()) {
+        optimizeCanvasForIOS(canvas);
+      }
     };
 
     const update = () => {
